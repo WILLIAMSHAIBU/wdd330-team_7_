@@ -43,8 +43,13 @@ export default class ProductDetails {
 
     // Update product image
     const productImage = document.querySelector('.product-detail img');
-    if (productImage && this.product.Image) {
-      productImage.src = this.product.Image;
+    if (productImage && this.product.PrimaryLarge) {
+      // Use PrimaryLarge for product detail images
+      const imageUrl = this.product.PrimaryLarge || this.product.Image;
+      // Handle API image paths - if it's not a full URL, prepend the base URL
+      productImage.src = imageUrl.startsWith('http')
+        ? imageUrl
+        : `${import.meta.env.VITE_SERVER_URL}${imageUrl}`;
       productImage.alt = this.product.Name;
     }
 
