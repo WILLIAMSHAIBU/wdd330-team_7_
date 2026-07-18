@@ -4,29 +4,28 @@
 import ProductData from './ProductData.mjs';
 
 export default class ProductList {
-  constructor(category, elementId) {
+  constructor(category, dataSource, listElement) {
     this.category = category;
-    this.elementId = elementId;
-    this.dataSource = new ProductData(category);
+    this.dataSource = dataSource;
+    this.listElement = listElement;
   }
 
   async init() {
-    const products = await this.dataSource.getData();
-    this.renderProductList(products);
+    const list = await this.dataSource.getData(this.category);
+    this.renderProductList(list);
   }
 
   renderProductList(products) {
-    const productListElement = document.getElementById(this.elementId);
-    if (!productListElement) {
-      console.error(`Element with id '${this.elementId}' not found`);
+    if (!this.listElement) {
+      console.error('List element not found');
       return;
     }
 
-    productListElement.innerHTML = '';
+    this.listElement.innerHTML = '';
 
     products.forEach((product) => {
       const productCard = this.createProductCard(product);
-      productListElement.appendChild(productCard);
+      this.listElement.appendChild(productCard);
     });
   }
 
@@ -38,7 +37,12 @@ export default class ProductList {
     a.href = `product_pages/index.html?product=${product.Id}`;
 
     const img = document.createElement('img');
-    img.src = product.Image;
+    // Use PrimaryMedium for product list images
+    const imageUrl = product.PrimaryMedium || product.Image;
+    // Handle API image paths - if it's not a full URL, prepend the base URL
+    img.src = imageUrl.startsWith('http')
+      ? imageUrl
+      : `${import.meta.env.VITE_SERVER_URL}${imageUrl}`;
     img.alt = product.NameWithoutBrand || product.Name;
 
     const brand = document.createElement('h3');
